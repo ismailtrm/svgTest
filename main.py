@@ -42,9 +42,3 @@ async def generate_svg():
     except Exception as e:
         logger.error(f"Error: {e}", exc_info=True)
         return {"error": "Failed to generate PNG"}
-
-
-# Vercel ASGI handler
-from mangum import Mangum
-
-handler = Mangum(app)
