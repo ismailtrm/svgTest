@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 import io
 import logging
-import cairosvg
+from svglib.svglib import svg2rlg
+from reportlab.graphics.renderPM import drawToPIL
 from starlette.responses import StreamingResponse
 
 app = FastAPI()
@@ -10,9 +11,11 @@ app = FastAPI()
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello from Vercel"}
+
 
 @app.get("/svg")
 async def generate_svg():
@@ -24,12 +27,24 @@ async def generate_svg():
             style="fill:yellow;stroke:green;stroke-width:3" />
         </svg>
         """
-        png_bytes = cairosvg.svg2png(bytestring=svg.encode('utf-8'))
-        return StreamingResponse(io.BytesIO(png_bytes), media_type="image/png")
+
+        # Convert SVG to PNG using svglib and Pillow
+        drawing = svg2rlg(io.BytesIO(svg.encode()))
+        img = drawToPIL(drawing)
+
+        # Save to a BytesIO buffer
+        img_buffer = io.BytesIO()
+        img.save(img_buffer, format="PNG")
+        img_buffer.seek(0)
+
+        return StreamingResponse(img_buffer, media_type="image/png")
+
     except Exception as e:
         logger.error(f"Error: {e}", exc_info=True)
         return {"error": "Failed to generate PNG"}
 
+
 # Vercel ASGI handler
 from mangum import Mangum
+
 handler = Mangum(app)
