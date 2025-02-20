@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 @app.get("/")
-async def say_hello(name: str):
+async def say_hello():
     logger.info(f"succes")
     return {"message": f"Hello"}
 
