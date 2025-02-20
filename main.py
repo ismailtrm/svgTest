@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 import io
 import logging
-from svglib.svglib import svg2rlg
-from reportlab.graphics.renderPM import drawToPIL
+import cairosvg
 from starlette.responses import StreamingResponse
 
 app = FastAPI()
@@ -10,7 +9,6 @@ app = FastAPI()
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 @app.get("/")
 async def root():
@@ -28,13 +26,11 @@ async def generate_svg():
         </svg>
         """
 
-        # Convert SVG to PNG using svglib and Pillow
-        drawing = svg2rlg(io.BytesIO(svg.encode()))
-        img = drawToPIL(drawing)
+        # Convert SVG to PNG using cairosvg
+        png_data = cairosvg.svg2png(bytestring=svg.encode())
 
-        # Save to a BytesIO buffer
-        img_buffer = io.BytesIO()
-        img.save(img_buffer, format="PNG")
+        # Create BytesIO buffer with the PNG data
+        img_buffer = io.BytesIO(png_data)
         img_buffer.seek(0)
 
         return StreamingResponse(img_buffer, media_type="image/png")
