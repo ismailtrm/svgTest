@@ -19,8 +19,12 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-
 @app.get("/")
+async def say_hello(name: str):
+    logger.info(f"succes")
+    return {"message": f"Hello"}
+
+@app.get("/svg")
 async def root():
     logger.debug("Starting root endpoint processing")
     try:
