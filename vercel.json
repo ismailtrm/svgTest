@@ -2,9 +2,16 @@
   "version": 2,
   "builds": [
     {
-      "src": "main.py",
+      "src": "app.py",
       "use": "@vercel/python"
     }
   ],
+    "routes": [
+        {
+        "src": "/(.*)",
+        "dest": "app.py"
+        }
+    ],
   "buildCommand": "apt-get update && apt-get install -y libcairo2 && pip install -r requirements.txt"
 }
+
